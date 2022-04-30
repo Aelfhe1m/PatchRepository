@@ -3,6 +3,12 @@
 // CAN GIVE INCONSISTENT RESULTS - NOT SUITABLE FOR FULL PLAYTHROUGHS //
 // *******************************************************************//
 
+// *******************************************************************//
+// NOTE: WHEN WRITING PATCHES PAY CLOSE ATTENTION TO CASE SENSITIVITY //
+//       PART        => TechRequired                                  //
+//       PARTUPGRADE => techRequired                                  //
+// *******************************************************************//
+
 // Use the OTHER PARTS tree node and some custom tagging to help find parts
 // that haven't been explicitly placed in the tree or from unsupported mods.
 @TechTree:NEEDS[SkyhawkScienceSystem]:FOR[0000_SkyhawkScienceSystem]
@@ -42,12 +48,22 @@
 	%TechRequired = Unresearcheable
 }
 
+@PARTUPGRADE[*]:HAS[~techRequired[*]]:FIRST
+{
+	%techRequired = notSpecified
+}
+
 // Before SSS patching begins, record part's default technode then mark
 // it as "otherParts" (i.e. unplaced)
 @PART[*]:HAS[~TechRequired[Unresearcheable]]:NEEDS[SkyhawkScienceSystem]:AFTER[0000_SkyhawkScienceSystem]
 {
 	%SSS_OldTech = #$TechRequired$
 	@TechRequired = otherParts 
+}
+@PARTUPGRADE:HAS[~techRequired[Unresearcheable]]:NEEDS[SkyhawkScienceSystem]:AFTER[0000_SkyhawkScienceSystem]
+{
+	%SSS_OldTech = #$techRequired$
+	@techRequired = otherParts 
 }
 
 // After SSS patching create a custom tag on parts that are still unsorted.
@@ -56,4 +72,10 @@
 @PART[*]:HAS[#TechRequired[otherParts]]:NEEDS[SkyhawkScienceSystem]:LAST[SkyhawkScienceSystem]
 {
 	%SSS_UNSORTEDPARTINFO = #N=$name$ T=$title$ Tech=$SSS_OldTech$/$category$
+	!SSS_OldTech = delete
+}
+@PARTUPGRADE[*]:HAS[#techRequired[otherParts]]:NEEDS[SkyhawkScienceSystem]:LAST[SkyhawkScienceSystem]
+{
+	%SSS_UNSORTEDPARTUPDATEINFO = #$name$ T=$title$ Tech=$SSS_OldTech$
+	!SSS_OldTech = delete
 }
